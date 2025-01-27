@@ -11,34 +11,37 @@ function JokeList({numJokesToGet = 5}) {
 
   /* retrieve jokes from API */
 
-  const getJokes = useCallback(async () => {
+  const getJokes = useCallback( async () => {
     try {
-      // load jokes one at a time, adding not-yet-seen jokes
       let jokes = [];
       let seenJokes = new Set();
-
+  
       while (jokes.length < numJokesToGet) {
+        console.log("Fetching joke...");
+  
         let res = await axios.get("https://icanhazdadjoke.com", {
-          headers: { 
-            Accept: "application/json",
-            "User-Agent": "CheesyJokesApp (https://github.com/rna3/cheezy-dad-jokes)"
-          }
-
+          headers: {
+            Accept: "application/json"}
         });
-        let { ...joke } = res.data;
-
+  
+        console.log("API Response:", res);
+  
+        let joke = res.data;
+        console.log("Fetched joke:", joke);
+  
         if (!seenJokes.has(joke.id)) {
           seenJokes.add(joke.id);
           jokes.push({ ...joke, votes: 0 });
         } else {
-          console.log("duplicate found!");
+          console.log("Duplicate joke detected!");
         }
       }
-
+  
       setJokes(jokes);
       setIsLoading(false);
     } catch (err) {
-      console.error(err);
+      console.error("Error fetching jokes:", err.message);
+      setIsLoading(false); // Ensure spinner stops
     }
   }, [numJokesToGet]);
 
